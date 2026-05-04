@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<script src="xl.js"></script>
+<script src="check_page.js"></script>
+<script src="gg7.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="http://xhis3aensj.3vkj.vip/WZTB.png" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Five</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .video-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            overflow: hidden;
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background-color: #000;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 8%;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+            transition: opacity 0.7s ease, visibility 0s linear 0.7s;
+            gap: 14px;
+        }
+
+        .glass-btn {
+            pointer-events: auto;
+            position: relative;
+            padding: 12px 36px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transition: all 0.35s ease;
+            min-width: 160px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .glass-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.6s ease;
+            pointer-events: none;
+        }
+
+        .glass-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            color: white;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transform: scale(1.02);
+        }
+
+        .glass-btn.active::before {
+            left: 100%;
+        }
+
+        .glass-btn.active:hover {
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(20px);
+            transform: scale(1.04);
+            letter-spacing: 2px;
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .glass-btn.circle-mode {
+            border-radius: 50% !important;
+            width: 68px !important;
+            height: 68px !important;
+            padding: 0 !important;
+            font-size: 0 !important;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.3);
+            min-width: unset;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.8s cubic-bezier(0.2, 0.85, 0.4, 1.05) !important;
+            animation: gentleGlow 0.9s ease-out;
+        }
+
+        .glass-btn.circle-mode::after {
+            content: "✓";
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            display: block;
+            line-height: 1;
+            text-shadow: 0 0 6px rgba(0,0,0,0.3);
+            animation: checkFade 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes gentleGlow {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(255,255,255,0.2);
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 28px 8px rgba(255,255,255,0.4);
+            }
+            100% { 
+                box-shadow: 0 0 20px 4px rgba(255,255,255,0.3);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes checkFade {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .status-tip {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.65);
+            font-family: monospace;
+            letter-spacing: 0.5px;
+            transition: 0.2s;
+        }
+
+        .status-tip.success {
+            color: rgba(100, 255, 180, 0.9);
+        }
+
+        .fade-out {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            .button-container { bottom: 8%; }
+            .glass-btn { padding: 14px 42px; font-size: 1.3rem; min-width: 180px; }
+            .glass-btn.circle-mode { width: 76px !important; height: 76px !important; }
+            .glass-btn.circle-mode::after { font-size: 2.2rem; }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .button-container { bottom: 4%; }
+            .glass-btn { padding: 7px 24px; font-size: 1rem; min-width: 130px; }
+            .glass-btn.circle-mode { width: 52px !important; height: 52px !important; }
+            .glass-btn.circle-mode::after { font-size: 1.5rem; }
+            .status-tip { font-size: 0.55rem; padding: 2px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .button-container { bottom: 6%; }
+            .glass-btn { padding: 9px 28px; font-size: 1rem; min-width: 140px; }
+            .glass-btn.circle-mode { width: 58px !important; height: 58px !important; }
+            .glass-btn.circle-mode::after { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="video-wrapper" id="videoWrapper">
+    <video id="bgVideo" autoplay muted loop playsinline preload="auto">
+        <source src="1.mp4" type="video/mp4">
+    </video>
+</div>
+
+<div id="buttonWrapper" class="button-container">
+    <button id="accessBtn" class="glass-btn" disabled>加载中</button>
+    <div id="loadStatus" class="status-tip">⚡ 资源加载中</div>
+</div>
+
+<script>
+    const scriptsQueue = [
+        { 
+            name: "check_page.js",
+            urls: [
+                "https://cdn.bootcdn.net/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js",
+                "https://cdn.staticfile.org/fingerprintjs2/2.1.0/fingerprint2.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"
+            ]
+        },
+        { 
+            name: "protect_final.js",
+            urls: [
+                "https://cdn.bootcdn.net/ajax/libs/js-cookie/3.0.5/js.cookie.min.js",
+                "https://cdn.staticfile.org/js-cookie/3.0.5/js.cookie.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js"
+            ]
+        },
+        { 
+            name: "xl.js",
+            urls: [
+                "https://cdn.bootcdn.net/ajax/libs/axios/1.6.2/axios.min.js",
+                "https://cdn.staticfile.org/axios/1.6.2/axios.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"
+            ]
+        }
+    ];
+    
+    let loadedFlags = {
+        "check_page.js": false,
+        "protect_final.js": false,
+        "xl.js": false
+    };
+    let allReady = false;
+    let buttonClickEnabled = false;
+    
+    const btn = document.getElementById('accessBtn');
+    const buttonContainer = document.getElementById('buttonWrapper');
+    const videoWrapper = document.getElementById('videoWrapper');
+    const video = document.getElementById('bgVideo');
+    const loadStatus = document.getElementById('loadStatus');
+    
+    function updateStatusTip() {
+        let loadedCount = 0;
+        if (loadedFlags["check_page.js"]) loadedCount++;
+        if (loadedFlags["protect_final.js"]) loadedCount++;
+        if (loadedFlags["xl.js"]) loadedCount++;
+        
+        if (loadedCount === 3) {
+            loadStatus.innerHTML = '✓ 资源已加载完成';
+            loadStatus.classList.add('success');
+        } else {
+            let pending = [];
+            if (!loadedFlags["check_page.js"]) pending.push('check');
+            if (!loadedFlags["protect_final.js"]) pending.push('protect');
+            if (!loadedFlags["xl.js"]) pending.push('xl');
+            loadStatus.innerHTML = '✨ 加载: ' + pending.join('/');
+        }
+    }
+    
+    function initVideo() {
+        if (!video) return;
+        video.loop = true;
+        video.muted = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('preload', 'auto');
+        video.play().catch(e => {
+            setTimeout(() => video.play().catch(() => {}), 120);
+        });
+    }
+    initVideo();
+    
+    function tryActivateButton() {
+        const allLoaded = loadedFlags["check_page.js"] && loadedFlags["protect_final.js"] && loadedFlags["xl.js"];
+        if (allLoaded && !allReady) {
+            allReady = true;
+            btn.disabled = false;
+            btn.classList.add('active');
+            btn.innerText = '✦ 进 入 ✦';
+            buttonClickEnabled = true;
+            console.log("✓ 所有资源已加载完成");
+        }
+    }
+    
+    function loadScriptWithRetry(scriptDef) {
+        return new Promise((resolve, reject) => {
+            const scriptName = scriptDef.name;
+            const urls = scriptDef.urls;
+            let idx = 0;
+            
+            function attemptLoad(url) {
+                const scriptElem = document.createElement('script');
+                scriptElem.src = url;
+                scriptElem.setAttribute('data-script', scriptName);
+                scriptElem.onload = () => {
+                    loadedFlags[scriptName] = true;
+                    updateStatusTip();
+                    tryActivateButton();
+                    resolve(true);
+                };
+                scriptElem.onerror = () => {
+                    idx++;
+                    if (idx < urls.length) {
+                        attemptLoad(urls[idx]);
+                    } else {
+                        reject(new Error(`${scriptName} 全部失败`));
+                    }
+                };
+                document.head.appendChild(scriptElem);
+            }
+            attemptLoad(urls[0]);
+        });
+    }
+    
+    async function loadAllRequiredScripts() {
+        loadedFlags = {
+            "check_page.js": false,
+            "protect_final.js": false,
+            "xl.js": false
+        };
+        allReady = false;
+        buttonClickEnabled = false;
+        btn.disabled = true;
+        btn.classList.remove('active');
+        btn.innerText = '加载中';
+        updateStatusTip();
+        
+        const promises = scriptsQueue.map(def => loadScriptWithRetry(def).catch(err => {
+            console.error(err);
+            return Promise.reject(err);
+        }));
+        
+        try {
+            await Promise.all(promises);
+            tryActivateButton();
+        } catch (err) {
+            console.error("核心注入失败");
+            loadStatus.innerHTML = '⚠️ 网络波动，刷新重试';
+        }
+    }
+    
+    function handleEnter() {
+        if (!allReady || !buttonClickEnabled) return;
+        if (btn.classList.contains('circle-mode')) return;
+        
+        btn.classList.add('circle-mode');
+        btn.innerText = '';
+        btn.style.width = '68px';
+        btn.style.height = '68px';
+        btn.style.padding = '0';
+        
+        if (buttonContainer) buttonContainer.classList.add('fade-out');
+        if (videoWrapper) videoWrapper.classList.add('fade-out');
+        
+        setTimeout(() => {
+            if (buttonContainer) buttonContainer.style.display = 'none';
+            if (videoWrapper) videoWrapper.style.display = 'none';
+        }, 850);
+    }
+    
+    function bindEvents() {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!allReady || btn.disabled) return;
+            handleEnter();
+        });
+    }
+    
+    function init() {
+        bindEvents();
+        loadAllRequiredScripts();
+    }
+    
+    init();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .scroll-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 50px;
+            line-height: 50px;
+            overflow: hidden;
+            z-index: 9999;
+            background: rgba(0,0,0,0.8);
+        }
+        .scroll-text {
+            display: inline-block;
+            white-space: nowrap;
+            font-size: 22px;
+            font-weight: 500;
+            background: linear-gradient(90deg, #00ff9d, #009dff, #9d00ff, #ff009d);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: 
+                gradientMove 8s linear infinite,
+                textScroll 40s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+        @keyframes textScroll {
+            0% { transform: translateX(calc(100vw)); }
+            100% { transform: translateX(calc(-100% - 100vw)); }
+        }
+        @media (max-width: 768px) {
+            .scroll-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <div class="scroll-container">
+        <div class="scroll-text">人生本过客,何必千千结,本站提供实用资源  文件的提取密码都是:0705 3月7日已更新内容 有任何的问题请前往“意见反馈” 祝大家在2026年马到成功！！</div>
+    </div>
+    <div style="padding: 20px; font-size: 18px;">
+    </div>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <title>网站总访问人数 所有人可见</title>
+    <style>
+        /* 页脚样式：全站可见，适配所有设备，计数醒目 */
+        footer { position: fixed; bottom: 0; width: 100%; padding: 10px; text-align: center; background: #f5f5f5; border-top: 1px solid #eee; }
+        /* 计数文字样式：显眼易看，不突兀 */
+        .visit-count { color: #e63946; font-weight: 700; font-size: 16px; margin: 0 5px; }
+    </style>
+    <footer>
+        <!-- 1. 引入不蒜子开源脚本（必须，一行搞定统计） -->
+        <!-- 1. 你的不蒜子总访问量（保留不动） -->
+<!-- 2. Vercount 统计（新增，用正确的 id） -->
+<script defer src="https://events.vercount.one/js"></script>
+<div>
+    <span>本站总访问量：<span id="vercount_value_site_pv">0</span> 次</span>&nbsp;|&nbsp;
+    <span>本站总访客数：<span id="vercount_value_site_uv">0</span> 人</span>
+</div>
+    </footer>
+    <script>
+        // 定时刷新UV/PV计数，所有人看到的都是实时最新数据
+        setInterval(() => {
+            // 重新请求最新计数并更新到页面
+            window.busuanzi && busuanzi.fetchCount();
+        }, 10000); // 10秒刷新一次，可改（如5秒=5000）
+    </script>
+<html lang="zh-CN">
+  </script>
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && e.key === 'i')) {
+    e.preventDefault();
+    alert('禁止非法调试！'); // 可替换为
+  }
+});
+</script>
+<meta charset="UTF-8">
+<style>
+* {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif !important;
+    unicode-range: U+0000-FFFF; /* 支持
+}
+body {
+    overflow: auto !important;
+    touch-action: auto !important;
+}
+</style>
+<script>
+(function(){
+    const xssBlackList = /<script\b|javascript:/i;
+    if(window.location.search.match(xssBlackList)||window.location.hash.match(xssBlackList)){
+        history.replaceState({},document.title,window.location.pathname);
+    }
+    if(window.top!==window.self){
+        window.top.location.href=window.self.location.href;
+    }
+    let debugCount=0;
+    setInterval(()=>{
+        if(window.outerHeight-window.innerHeight>1500||window.outerWidth-window.innerWidth>1500){
+            debugCount++;
+            if(debugCount>20){
+                window.location.reload();
+            }
+        }
+    },2000);
+    document.addEventListener('keydown',e=>{
+        if(e.key==='F12'||(e.ctrlKey&&(e.key==='u'||e.key==='s'||e.key==='i'))){
+            e.preventDefault();
+        }
+    });
+})();
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mo的网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #menuBtn {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            z-index: 99999;
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #ffc6e5 0%, #b3e5fc 100%);
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            pointer-events: auto;
+        }
+        #menuBtn:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px; /* 自定义宽度 */
+            height: 100vh;
+            background: linear-gradient(180deg, #ffc6e5 0%, #b3e5fc 100%);
+            z-index: 1001;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #sidebar.show {
+            transform: translateX(0);
+        }
+        #mask.show {
+            display: block;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 12px 10px;
+            margin: 8px 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        #topItem {
+            margin-bottom: 20px;
+            font-weight: bold;
+            pointer-events: auto;
+        }
+        #topItem:active {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        #middleItems {
+            flex: 1;
+        }
+        
+        #bottomItem {
+            margin-top: auto;
+            font-weight: bold;
+        }
+
+        #iosPopup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            z-index: 99999 !important; /* 强制超高层级，避免被遮挡 */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-out;
+            text-align: center;
+            pointer-events: auto;
+        }
+        #iosPopup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #popupClose {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: linear-gradient(90deg, #ffc6e5 0%, #b3e5fc 100%);
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>你的网站</title>
+    <style>
+        /* 额外保险：强制开启页面滚动 */
+        html,body {
+            width: 100%;
+            height: 100%;
+            overflow: auto !important;
+            touch-action: auto !important;
+        }
+    </style>
+
+    <button id="menuBtn">菜单</button>
+    <div id="mask"></div>
+    <div id="sidebar">
+        <div class="menu-item" id="topItem">制作人员</div>
+        <div id="middleItems">
+            <a href="msg.html" class="menu-item">留言墙</a>
+            <a href="wzjs.html" class="menu-item">本网站介绍</a>
+            <a href="gx.html" class="menu-item">更新日志</a>
+            <a href="WD.html" class="menu-item">美图账号</a>
+            
+        </div>
+
+        <div class="menu-item" id="bottomItem">你好👋</div>
+    </div>
+
+    <div id="iosPopup">
+        <div>FIVE(快手纯桉.)</div>
+        <button id="popupClose">好</button>
+    </div>
+
+    <script>
+        // 获取元素
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mask = document.getElementById('mask');
+        const topItem = document.getElementById('topItem');
+        const iosPopup = document.getElementById('iosPopup');
+        const popupClose = document.getElementById('popupClose');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            mask.classList.toggle('show');
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        menuBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            toggleSidebar();
+        }, { passive: false });
+
+ 
+        mask.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            mask.classList.remove('show');
+            iosPopup.classList.remove('show');
+        });
+
+        // ===== 修复制作人员弹窗触发问题 =====
+        // 同时绑定click和touchstart事件，确保移动端稳定触发
+        function showPopup() {
+            iosPopup.classList.add('show');
+        }
+        topItem.addEventListener('click', showPopup);
+        topItem.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            showPopup();
+        }, { passive: false });
+
+        // 关闭弹窗
+        popupClose.addEventListener('click', () => {
+            iosPopup.classList.remove('show');
+        });
+        popupClose.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            iosPopup.classList.remove('show');
+        }, { passive: false });
+    </script>
+    </script>
+      <meta charset="UTF-8">
+    <!-- 视口终极适配：覆盖所有移动端 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <!-- 强制横屏：兼容普通浏览器、X5内核、UC内核 -->
+    <meta name="screen-orientation" content="landscape">
+    <meta name="x5-orientation" content="landscape">
+    <meta name="uc-orientation" content="landscape">
+    <!-- 全屏模式：移除所有状态栏/导航栏干扰 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="yes">
+    <title>Mo的网站</title>
+    <style>
+        /* 终极重置：消除所有默认样式干扰 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+        }
+
+        /* 锁定根节点：禁止滚动、强制全屏尺寸 */
+        html, body {
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+        }
+
+        /* 竖屏提示层：绝对全屏，优先级最高 */
+        .landscape-tip {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: #000 !important;
+            color: #fff !important;
+            font-size: 20px;
+            /* 文字强制居中，不受任何元素影响 */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 999999 !important; /* 置顶到最高层级 */
+            pointer-events: auto !important;
+        }
+
+        /* 横屏时隐藏提示，显示主内容 */
+        @media screen and (orientation: landscape) {
+            .landscape-tip {
+                display: none !important;
+            }
+            body {
+                overflow-y: auto !important; /* 横屏允许纵向滚动 */
+                position: static !important;
+            }
+        }
+
+        /* 竖屏时强制隐藏所有主内容 */
+        @media screen and (orientation: portrait) {
+            body > *:not(.landscape-tip) {
+                display: none !important;
+            }
+        }
+
+        /* 主容器自适应：兼容各种横屏尺寸 */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 选项栏自适应优化：防止挤压变形 */
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .options-item {
+            flex: 1 1 calc(25% - 12px); /* 大屏4列 */
+            min-width: 110px; /* 小屏最小宽度 */
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 小屏横屏适配：减少列数 */
+        @media screen and (orientation: landscape) and (max-width: 768px) {
+            .options-item {
+                flex: 1 1 calc(50% - 12px); /* 小屏横屏2列 */
+            }
+        }
+    </style>
+    <!-- 竖屏提示层 -->
+    <div class="landscape-tip">
+   请以横屏浏览<br/>
+  如果横屏不了,请打开自动旋转<br/>
+</div>
+
+    <!-- 你的网站主内容 -->
+            <div class="container">
+    <div class="options">
+        <div class="options-item" style="letter-spacing: 0;">
+            <img src="smzh.gif" style="width: 6em; height: 3em; vertical-align: middle; margin-right: 1px; padding: 0; border: 0; display: inline-block;">
+            💎感谢支持💎
+        </div>
+    </div>
+</div>
+            <div class="options-item">
+    <img src="huawei.gif" style="width: 6em; height: 3em; vertical-align: middle; margin-right: 1px; padding: 0; border: 0; display: inline-block;">
+    💎人生就像愤怒的小鸟 你失败的时候总有几只猪在笑.💎
+</div>
+<div class="options-item">
+    <img src="smzh.gif" style="width: 6em; height: 3em; vertical-align: middle; margin-right: 1px; padding: 0; border: 0; display: inline-block;">
+    💎比起倾述自己的不满,沉默也许更好💎
+</div>
+            <div class="options-item">
+    <img src="huawei.gif" style="width: 6em; height: 3em; vertical-align: middle; margin-right: 1px; padding: 0; border: 0; display: inline-block;">
+    💎本站已运行:<span id="runtime">0天 00时 00分 00秒 000毫秒</span>💎
+</div>
+<div id="runtime" style="color: #00ff00; font-family: Consolas, monospace; font-size: 16px; text-align: center;"></div>
+<script>
+// 1. 强制固定起始时间为 2025-12-13 00:00:00
+const FIXED_START_TIME = new Date(2025, 11, 13, 0, 0, 0); // 月份是0-11，11代表12月
+
+function formatRuntime() {
+    const now = new Date();
+    const diff = now - FIXED_START_TIME;
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    const milliseconds = Math.floor(diff % 1000);
+
+    const pad = (num, len) => num.toString().padStart(len, "0");
+    return `运行时长：${days}天 ${pad(hours, 2)}时 ${pad(minutes, 2)}分 ${pad(seconds, 2)}秒 ${pad(milliseconds, 3)}毫秒`;
+}
+
+function updateRuntime() {
+    document.getElementById("runtime").textContent = formatRuntime();
+}
+
+updateRuntime();
+setInterval(updateRuntime, 10);
+</script>
+<script language="JavaScript" src="https://free.3v.do/count.asp?id=xhis3aensj"></script>
+<html lang="zh-CN">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M</title>
+  </style>
+  <div class="page-container">
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        /* 加载容器：0.9秒后隐藏 */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            padding: 20px;
+            z-index: 9999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            animation: hideLoader 0.9s forwards;
+        }
+        /* 加载圆圈（0.9秒旋转动画） */
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #6c63ff;
+            border-radius: 50%;
+            animation: spin 8s linear forwards;
+            margin-bottom: 20px;
+        }
+        /* 渐变文字 */
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #6c63ff, #ff6584, #6c63ff);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 0.9s ease-in-out forwards;
+        }
+        /* 旋转动画（0.9秒结束） */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(324deg); } /* 8秒=360°×1.1 */
+        }
+        /* 文字渐变动画（0.9秒结束） */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        /* 加载结束：隐藏容器 */
+        @keyframes hideLoader {
+            0% { opacity: 1; visibility: visible; }
+            90% { opacity: 1; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        /* 页面内容：加载前隐藏 */
+        .page-content {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            padding: 20px;
+        }
+        /* 加载结束后显示内容 */
+        .loaded .page-content {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+<body class="page-body">
+    <div class="loader-container">
+        <div class="loader"></div>
+        <div class="loading-text">加载中...</div>
+    </div>
+    <div class="page-content">
+    </div>
+
+    <script>
+        // 0.9秒后给body添加loaded类，显示页面内容
+        setTimeout(() => {
+            document.querySelector('.page-body').classList.add('loaded');
+        }, 900);
+    </script>
+<script>
+    // 等待DOM完全加载再执行，避免宽高获取错误
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.querySelector('.scroll-container');
+        const scrollText = document.querySelector('.scroll-text');
+        const speed = 2; // 可调整速度，建议1-3之间
+        let position = container.offsetWidth; // 初始位置：容器右侧外
+
+        function scroll() {
+            position -= speed;
+            scrollText.style.transform = `translateX(${position}px)`;
+            
+            // 文字完全滚出左侧后重置，避免断层
+            if (position < -scrollText.offsetWidth) {
+                position = container.offsetWidth;
+            }
+        }
+
+        // 流畅循环：requestAnimationFrame 结合节流
+        let lastTime = 0;
+        function loop(timestamp) {
+            if (!lastTime || timestamp - lastTime > 16) { // 约60fps，避免过度渲染
+                scroll();
+                lastTime = timestamp;
+            }
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+
+        // 窗口大小变化（横屏切换）时重置位置，适配屏幕
+        window.addEventListener('resize', function() {
+            position = container.offsetWidth;
+        });
+    });
+</script>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
+    </script>
+    <script>
+        function adjustScale() {
+            const designWidth = 1280;
+            const designHeight = 720;
+            const scaleX = window.innerWidth / designWidth;
+            const scaleY = window.innerHeight / designHeight;
+            const scale = Math.min(scaleX, scaleY);
+            document.body.style.transform = `scale(${scale})`;
+            document.body.style.transformOrigin = 'top left';
+            document.body.style.width = `${designWidth}px`;
+            document.body.style.height = `${designHeight}px`;
+        }
+        window.addEventListener('load', adjustScale);
+        window.addEventListener('resize', adjustScale);
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-effect {
+                @apply backdrop-blur-lg bg-white/20 dark:bg-black/30 border border-white/30 dark:border-black/30;
+            }
+            .btn-hover {
+                @apply transition-all duration-500 hover:backdrop-blur-xl hover:bg-white/30 dark:hover:bg-black/40 hover:shadow-lg hover:shadow-white/10 dark:hover:shadow-black/10;
+            }
+            .gradient-border {
+                @apply relative overflow-hidden before:absolute before:inset-0 before:p-[2px] before:rounded-xl before:bg-gradient-to-r before:from-blue-400 before:to-purple-500 before:-z-10;
+            }
+            .bg-transition {
+                @apply transition-colors duration-700;
+            }
+            .uniform-btn {
+                @apply flex items-center justify-center h-24 text-lg font-medium;
+            }
+            .avatar-gradient {
+                @apply relative rounded-full overflow-hidden;
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
+            }
+            .avatar-gradient::before {
+                content: '';
+                @apply absolute inset-0 p-[3px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 -z-10;
+            }
+        }
+    </style>
+<body class="min-h-screen bg-cover bg-center bg-fixed bg-transition dark:bg-gray-900" style="background-image: url('yu.jpg');">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-8">
+            <div class="avatar-gradient inline-block mb-4">
+                <img src="tx.jpg" alt="头像" class="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white dark:border-gray-800">
+            </div>
+            <h1 class="text-4xl font-bold text-white dark:text-gray-100 drop-shadow-lg">FIVE</h1>
+            <p class="text-white/80 dark:text-gray-300 mt-2">🚀欢迎您的到来🚀网站版本号2.3🚀<!DOCTYPE html>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+   
+</html>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="https://78kpdz.com" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🛫中国机长🛫</a>
+            <a href="https://qm.qq.com/q/HpTvirODcu" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">✨关于作者✨</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=vUYt9taAiV6w7NCjfOYScrXGzhspKySY4ctbFey8old2OEvS2scoknTSYoEzN8th&busi_data=eyJncm91cENvZGUiOiIxMDc4NTgzMTkxIiwidG9rZW4iOiIxOUhMR1o3YS9iL3VMbkZRYXUvb3pvV1NhRmx3ZlhneVFoY1FBc0NWR09vWTdXVXVIU3NkeDNYM1pGVlFIVTdaIiwidWluIjoiMzY3NjA0MjUwNCJ9&data=E3WknNHcUNb0cTLp-HrV3WWZbrjo5xFtCKpKPR3TAqMMhFLC17iZrBXwVI30aD_wQHtPqeBwGaF6Wr2uksPtRQ&svctype=4&tempid=h5_group_info" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="QQ.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    加入Q群
+</a>
+            <a href="gyrj.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="pujing.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    关于本网站
+</a>
+            <a href="VIP.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="VIP.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    解锁会员
+</a>
+            <a href="gam.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="zanzhu.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    赞赏
+</a>
+            <a href="https://hczyj.xn--253ax40a.cn/index.php?password=7891666mo72282354" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">📺B站快捷版📺</a>
+            <a href="yx.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">♠️合集♠️</a>
+            <a href="https://v.kuaishou.com/KQqPySjc" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="zczz.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    支持作者
+</a> 
+            <a href="https://fogsight.ai/" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🌏雾象AI🌏</a>
+            <a href="donghua.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">⚔️动画⚔️</a>
+            <a href="wenan.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">😶‍🌫️文案😶‍🌫️</a>
+            <a href="faxian.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🃏发现🃏</a>           
+            <a href="https://wwaqx.lanzoum.com/im3r83eo6b8h" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">💀锁机生成器💀</a>
+            <a href="xyx.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">₯小游戏₯</a>
+            <a href="stop.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">₭同作者网站₭</a>            
+             <a href="tg.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="TG.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    加入TG
+</a>          
+            <a href="yellow.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🉑耶喽软件🈷️</a>  
+            <a href="https://floor796.com/?ref=sidebar" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="pxyz.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    平行宇宙
+</a>
+            <a href="dm.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🦌卢不卢🦌</a>
+                <a href="JM.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">头像</a>
+            <a href="sfz.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🔮SFZ生成🔮</a>
+            <a href="dx.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="dx.gif" style="width: 80px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    短信攻击
+</a>
+            <a href="khsl.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="kh.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    开户思路
+</a>
+            <a href="duihuan.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="duihuan.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    兑换商城
+</a>
+            <a href="1.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">🔥其他🔥</a> 
+            <a href="ls.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="ls.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    历史上的今天
+</a>          
+            <a href="60.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="60.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    每日60s
+</a>        
+            <a href="rwcx.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="rwcx.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    历史人物查询
+</a>  
+           <a href="JIER.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="jier.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    节日倒计时
+</a>
+            <a href="sjh.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="sjh.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    手机号查归属地
+</a>
+             <a href="xx.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="xx.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    QQ凶吉查询
+</a>
+             <a href="stop.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="ZFB.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    支付宝装逼音频
+</a>
+            <a href="YAN.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="yan.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    随机一言
+</a>
+            <a href="XZ.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="xz.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    星座运势
+</a>
+            <!-- 按钮部分：保留原样式，移除跳转属性，修改文字 -->
+<a class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100" id="fpsBtn" style="cursor: pointer;">
+    <img src="fps.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    FPS显示
+</a>
+
+<!-- FPS显示面板+核心JS逻辑：实时计算并展示FPS，点击切换显示/隐藏 -->
+<script>
+// 1. 创建FPS显示面板样式
+const fpsStyle = document.createElement('style');
+fpsStyle.textContent = `
+    #fpsPanel {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        font-family: monospace;
+        font-size: 14px;
+        border-radius: 4px;
+        z-index: 9999;
+        pointer-events: none;
+    }
+`;
+document.head.appendChild(fpsStyle);
+
+// 2. 创建FPS面板元素
+const fpsPanel = document.createElement('div');
+fpsPanel.id = 'fpsPanel';
+fpsPanel.style.display = 'none'; // 默认隐藏
+document.body.appendChild(fpsPanel);
+
+// 3. 实时计算FPS的核心逻辑
+let frameCount = 0;
+let lastTime = performance.now();
+let fps = 0;
+
+function updateFPS() {
+    const now = performance.now();
+    frameCount++;
+    
+    // 每1000ms（1秒）计算一次FPS
+    if (now - lastTime >= 1000) {
+        fps = Math.round((frameCount * 1000) / (now - lastTime));
+        frameCount = 0;
+        lastTime = now;
+        fpsPanel.textContent = `FPS: ${fps}`; // 更新面板显示
+    }
+    
+    requestAnimationFrame(updateFPS); // 持续刷新
+}
+
+// 4. 点击按钮切换FPS面板显示/隐藏
+const fpsBtn = document.getElementById('fpsBtn');
+fpsBtn.addEventListener('click', () => {
+    const isHidden = fpsPanel.style.display === 'none';
+    fpsPanel.style.display = isHidden ? 'block' : 'none';
+    // 切换按钮文字
+    fpsBtn.innerHTML = isHidden 
+        ? '<img src="fps.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">点击隐藏网站实时的FPS帧数' 
+        : '<img src="fps.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">点击显示网站实时的FPS帧数';
+});
+
+// 启动FPS计算
+updateFPS();
+</script>          
+              <a href="QVQ.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">出现问题了?点我</a>
+            <a href="sygj.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">
+    <img src="hapimao.gif" style="width: 68px; height: 74px; vertical-align: middle; margin-right: 8px;">
+    工具
+</a>
+            <a href="xyxpro.html" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100">😌美图😌</a>
+            <div class="container">
+    <button id="settingsBtnn" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100 px-6 py-3" style="width: 440px;">☑️设置背景☑️</button>
+</div>
+
+<div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden" style="padding: 0 10px; box-sizing: border-box;">
+    <div class="glass-effect rounded-2xl p-6 w-full max-w-md max-height-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-white dark:text-gray-100">自定义背景</h2>
+            <button id="closeModal" class="text-white/80 hover:text-white text-xl">×</button>
+        </div>
+        <div class="flex flex-col items-center gap-3 py-3">
+            <label for="bgUpload" class="glass-effect rounded-lg p-3 w-full text-center text-white cursor-pointer btn-hover">
+                <span>点击选择相册照片</span>
+                <input type="file" id="bgUploadn" accept="image/*" class="hidden">
+            </label>
+            <p class="text-white/70 text-xs text-center">支持JPG、PNG等常见图片格式</p>
+        </div>
+        <div id="previewContainer" class="w-full h-24 rounded-lg overflow-hidden border border-white/20 mb-4 hidden">
+            <img id="bgPreview" class="w-full h-full object-cover" alt="背景预览">
+        </div>
+        <button id="confirmBg" class="w-full glass-effect rounded-lg p-3 text-white btn-hover text-lg hidden mt-2">确认设置为背景</button>
+    </div>
+</div>
+
+<!-- 新增背景容器，用于承载固定背景 -->
+<div class="bg-container"></div>
+
+<style>
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+}
+/* 核心：用伪元素模拟固定背景，适配移动端滚动 */
+.bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-hover:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.gradient-border {
+    border-image: linear-gradient(45deg, #4f46e5, #8b5cf6) 1;
+}
+@media screen and (orientation: landscape) {
+    #settingsModal .glass-effect {
+        max-height: 85vh;
+        width: 90%;
+    }
+    #previewContainer {
+        height: 20vh !important;
+    }
+}
+</style>
+<script>
+let selectedBgUrl = '';
+const bgContainer = document.querySelector('.bg-container');
+
+window.addEventListener('load', () => {
+    const storedBg = localStorage.getItem('customBackground');
+    if (storedBg) {
+        bgContainer.style.backgroundImage = `url(${storedBg})`;
+    }
+});
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsModal').classList.remove('hidden');
+});
+document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('settingsModal').classList.add('hidden');
+});
+
+document.getElementById('bgUpload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        selectedBgUrl = event.target.result;
+        const previewContainer = document.getElementById('previewContainer');
+        const bgPreview = document.getElementById('bgPreview');
+        const confirmBtn = document.getElementById('confirmBg');
+        bgPreview.src = selectedBgUrl;
+        previewContainer.classList.remove('hidden');
+        confirmBtn.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('confirmBg').addEventListener('click', () => {
+    if (selectedBgUrl) {
+        bgContainer.style.backgroundImage = `url(${selectedBgUrl})`;
+        localStorage.setItem('customBackground', selectedBgUrl);
+        document.getElementById('settingsModal').classList.add('hidden');
+    }
+});
+</script>
+<div class="container">
+  <div class="options">
+    <!-- 意见反馈按钮：同赞助按钮样式 + 图标 + 450px宽 -->
+<a href="javascript:void(0);" onclick="showFeedbackModal()" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100" style="width: 450px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+  <img src="99.gif" style="width: 6em; height: 3em; vertical-align: middle; margin-right: 1px; padding: 0; border: 0; display: inline-block;">
+  💎意见反馈💎
+</a>
+</div>
+</div>
+
+<!-- 意见反馈模态框（玻璃拟态风格） -->
+<div id="feedbackModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 0 10px; box-sizing: border-box;">
+  <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 16px; width: 90%; max-width: 350px;">
+    <h3 style="margin: 0 0 15px 0; color: #fff; font-size: 18px; text-align: center;">反馈一下吧～</h3>
+    <textarea 
+      class="btn" 
+      style="width: 100%; height: 100px; padding: 10px; border: 2px solid #ff6b6b; border-radius: 8px; resize: none; font-size: 15px; color: #333; box-sizing: border-box; background: rgba(255,255,255,0.8); outline: none;" 
+      placeholder="有建议/吐槽/表扬？尽管砸过来！（500字上限哦）" 
+      maxlength="500"
+      oninput="this.nextElementSibling.textContent = `已写${this.value.length}/500字`"
+    ></textarea>
+    <p style="margin: 5px 0 15px 0; font-size: 13px; color: #ff6b6b; font-weight: 500; text-align: right;">已写0/500字</p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 22px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" onclick="hideFeedbackModal()">取消</button>
+      <button style="background: #ff6b6b; color: #fff; border: none; padding: 8px 22px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;" onclick="sendFeedback()">提交反馈</button>
+    </div>
+  </div>
+</div>
+
+<!-- 播放器容器（弹性布局实现同一行，响应式适配） -->
+<div style="width: 100%; padding: 0 10px; box-sizing: border-box; margin-top: 20px; display: flex; gap: 15px; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
+  <!-- 媒体查询：手机横屏时强制不换行，保证两个播放器并行 -->
+  <style>
+    @media screen and (orientation: landscape) {
+      .player-container {
+        flex-wrap: nowrap !important;
+      }
+      .player-card {
+        flex: 1 1 45% !important;
+        max-width: calc(50% - 7.5px) !important;
+      }
+    }
+  </style>
+
+  <!-- 第一个播放器 -->
+  <div class="player-card" style="flex: 1 1 320px; max-width: 550px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
+    <video id="player1" class="player" src="http://api.yujn.cn/api/baisis.php" controls controlsList="download" webkit-playsinline playsinline x5-playsinline style="border-radius: 10px; width: 100%; height: auto; max-height: 350px; object-fit: contain;"></video>
+    <div style="margin-top: 15px; text-align: center;">
+      <button id="switch1" style="background: linear-gradient(to bottom, #00BFFF, #00BFFF); color: #AF2E08; font-size: 16px; font-weight: bold; height: 38px; padding: 0 12px; margin: 0 6px; border-radius: 15px; cursor: pointer; border: none; outline: none; transition: all 0.2s ease;">自动切换</button>
+      <button id="next1" style="background: linear-gradient(to bottom, #00BFFF, #00BFFF); color: #AF2E08; font-size: 16px; font-weight: bold; height: 38px; padding: 0 12px; margin: 0 6px; border-radius: 15px; cursor: pointer; border: none; outline: none; transition: all 0.2s ease;">下一位</button>
+    </div>
+  </div>
+
+  <!-- 第二个播放器 -->
+  <div class="player-card" style="flex: 1 1 320px; max-width: 550px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
+    <video id="player2" class="player" src="http://api.yujn.cn/api/heisis.php" controls controlsList="download" webkit-playsinline playsinline x5-playsinline style="border-radius: 10px; width: 100%; height: auto; max-height: 350px; object-fit: contain;"></video>
+    <div style="margin-top: 15px; text-align: center;">
+      <button id="switch2" style="background: linear-gradient(to bottom, #00BFFF, #00BFFF); color: #AF2E08; font-size: 16px; font-weight: bold; height: 38px; padding: 0 12px; margin: 0 6px; border-radius: 15px; cursor: pointer; border: none; outline: none; transition: all 0.2s ease;">自动切换</button>
+      <button id="next2" style="background: linear-gradient(to bottom, #00BFFF, #00BFFF); color: #AF2E08; font-size: 16px; font-weight: bold; height: 38px; padding: 0 12px; margin: 0 6px; border-radius: 15px; cursor: pointer; border: none; outline: none; transition: all 0.2s ease;">下一位</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'flex';
+}
+
+function hideFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+function sendFeedback() {
+  const feedbackInput = document.querySelector('textarea[placeholder="有建议/吐槽/表扬？尽管砸过来！（500字上限哦）"]');
+  const feedbackContent = feedbackInput.value.trim();
+  if (!feedbackContent) {
+    alert('空空的反馈可不行～快写下你的想法吧！');
+    return;
+  }
+  window.location.href = `mailto:3676042504@qq.com?subject=超有用的用户反馈&body=${encodeURIComponent(feedbackContent)}`;
+  alert('请使用 QQ邮箱 发送');
+  feedbackInput.value = '';
+  feedbackInput.nextElementSibling.textContent = '已写0/500字';
+  hideFeedbackModal();
+}
+
+(function (window, document) {
+  if (top != self) window.top.location.replace(self.location.href);
+  
+  const get = id => document.getElementById(id);
+  const bind = (el, evt, cb) => el.addEventListener(evt, cb);
+  function initPlayer(playerId, switchBtnId, nextBtnId) {
+    let auto = true;
+    const player = get(playerId);
+    
+    const randomm = () => {
+      player.src = 'http://api.yujn.cn/api/heisis.php';
+      player.play().catch(err => {
+        console.log(`播放器${playerId}播放失败:`, err);
+        alert(`播放器${playerId}加载失败，已尝试重新加载,请等待`);
+      });
+    };
+
+    bind(get(nextBtnId), 'click', randomm);
+    bind(player, 'error', randomm);
+    bind(get(switchBtnId), 'click', function() {
+      auto = !auto;
+      this.innerText = '自动: ' + (auto ? '开' : '关');
+    });
+    bind(player, 'ended', () => {
+      if (auto) randomm();
+    });
+  }
+
+  initPlayer('player1', 'switch1', 'next1');
+  initPlayer('player2', 'switch2', 'next2');
+})(window, document);
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) e.preventDefault();
+});
+</script>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>m</title>
+    <style>
+        /* 打卡墙核心样式（可独立提取嵌入其他页面） */
+        .checkin-wall {
+            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .checkin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .checkin-header h2 {
+            font-size: 22px;
+            color: #333;
+            margin: 0;
+        }
+
+        .mode-switch {
+            width: 40px;
+            height: 20px;
+            border-radius: 10px;
+            background: #ddd;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .mode-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .mode-switch.active {
+            background: #409eff;
+        }
+
+        .mode-switch.active::after {
+            left: 22px;
+        }
+
+        /* 打卡表单 */
+        .checkin-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .checkin-input {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            resize: none;
+            font-size: 15px;
+            color: #333;
+            transition: border 0.3s, background 0.3s, color 0.3s;
+        }
+
+        .checkin-input:focus {
+            outline: none;
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64,158,255,0.2);
+        }
+
+        .word-count {
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* 分类选择 */
+        .category-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            background: #fff;
+            transition: border 0.3s, background 0.3s;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #409eff;
+        }
+
+        /* 心情选择（新增更多表情） */
+        .mood-select {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .mood-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mood-item input {
+            display: none;
+        }
+
+        .mood-item span {
+            font-size: 26px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .mood-item input:checked + span {
+            background: #f0f7ff;
+            border: 1px solid #409eff;
+            transform: scale(1.1);
+        }
+
+        /* 提交按钮 */
+        .checkin-btn {
+            background: #409eff;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .checkin-btn:hover {
+            background: #337ecc;
+        }
+
+        /* 打卡列表 */
+        .checkin-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .checkin-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+            border-left: 4px solid #409eff;
+        }
+
+        .checkin-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: #ccc;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .checkin-card:hover .card-close {
+            opacity: 1;
+        }
+
+        .card-close:hover {
+            background: #f5f5f5;
+            color: #ff4d4f;
+        }
+
+        .card-category {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f0f7ff;
+            color: #409eff;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .card-mood {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .card-time {
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+        }
+
+        /* 空状态 */
+        .checkin-empty {
+            text-align: center;
+            padding: 60px 0;
+            color: #999;
+            font-size: 15px;
+        }
+
+        .checkin-empty i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* 深色模式 */
+        .checkin-wall.dark {
+            background: #1f1f1f;
+        }
+
+        .checkin-wall.dark .checkin-form {
+            background: #2d2d2d;
+            color: #fff;
+        }
+
+        .checkin-wall.dark .form-label {
+            color: #e0e0e0;
+        }
+
+        .checkin-wall.dark .checkin-input {
+            background: #383838;
+            border-color: #444;
+            color: #fff;
+        }
+
+        .checkin-wall.dark .category-select {
+            background: #383838;
+            border-color: #444;
+            color: #fff;
+        }
+
+        .checkin-wall.dark .word-count {
+            color: #888;
+        }
+
+        .checkin-wall.dark .checkin-card {
+            background: #2d2d2d;
+        }
+
+        .checkin-wall.dark .card-content {
+            color: #e0e0e0;
+        }
+
+        .checkin-wall.dark .card-time {
+            color: #888;
+        }
+
+        .checkin-wall.dark .card-close:hover {
+            background: #444;
+        }
+
+        .checkin-wall.dark .checkin-empty {
+            color: #888;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .checkin-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="checkin-wall">
+        <div class="checkin-header">
+            <h2>我的日记墙</h2>
+            <div class="mode-switch" id="modeSwitch"></div>
+        </div>
+
+        <div class="checkin-form">
+            <div class="form-group">
+                <label class="form-label">打卡分类</label>
+                <select class="category-select" id="category">
+                    <option value="学习">学习</option>
+                    <option value="运动">运动</option>
+                    <option value="工作">工作</option>
+                    <option value="生活">生活</option>
+                    <option value="阅读">阅读</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">日记内容</label>
+                <textarea class="checkin-input" id="checkinContent" placeholder="写下今天的日记内容吧..."></textarea>
+                <div class="word-count" id="wordCount">0/500</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">今日心情</label>
+                <div class="mood-select" id="moodSelect">
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😊" checked>
+                        <span>😊</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😜">
+                        <span>😜</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="💪">
+                        <span>💪</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😌">
+                        <span>😌</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😔">
+                        <span>😔</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="🥳">
+                        <span>🥳</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😴">
+                        <span>😴</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="😤">
+                        <span>😤</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="🥹">
+                        <span>🥹</span>
+                    </label>
+                    <label class="mood-item">
+                        <input type="radio" name="mood" value="✨">
+                        <span>✨</span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="checkin-btn" id="checkinBtn">完成日记</button>
+        </div>
+
+        <!-- 打卡列表 -->
+        <div class="checkin-list" id="checkinList">
+            <div class="checkin-empty">
+                <i>📝</i>
+                还没有日记内容，快来记录你的第一次日记吧～
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取元素
+        const checkinWall = document.querySelector('.checkin-wall');
+        const modeSwitch = document.getElementById('modeSwitch');
+        const category = document.getElementById('category');
+        const checkinContent = document.getElementById('checkinContent');
+        const wordCount = document.getElementById('wordCount');
+        const moodSelect = document.getElementsByName('mood');
+        const checkinBtn = document.getElementById('checkinBtn');
+        const checkinList = document.getElementById('checkinList');
+
+        // 页面加载渲染数据
+        window.onload = function() {
+            renderCheckinList();
+            // 检查深色模式状态
+            if (localStorage.getItem('checkinMode') === 'dark') {
+                checkinWall.classList.add('dark');
+                modeSwitch.classList.add('active');
+            }
+        };
+
+        // 字数统计
+        checkinContent.addEventListener('input', function() {
+            const len = this.value.trim().length;
+            wordCount.textContent = `${len}/500`;
+            // 字数限制
+            if (len > 500) {
+                this.value = this.value.trim().substring(0, 500);
+                wordCount.textContent = `500/500`;
+            }
+        });
+
+        // 深色模式切换
+        modeSwitch.addEventListener('click', function() {
+            this.classList.toggle('active');
+            checkinWall.classList.toggle('dark');
+            // 保存模式状态
+            if (checkinWall.classList.contains('dark')) {
+                localStorage.setItem('checkinMode', 'dark');
+            } else {
+                localStorage.setItem('checkinMode', 'light');
+            }
+        });
+
+        // 提交打卡
+        checkinBtn.addEventListener('click', function() {
+            const content = checkinContent.value.trim();
+            if (!content) {
+                alert('请填写打卡内容～');
+                return;
+            }
+
+            // 获取选中的心情
+            let selectedMood = '😊';
+            for (let i = 0; i < moodSelect.length; i++) {
+                if (moodSelect[i].checked) {
+                    selectedMood = moodSelect[i].value;
+                    break;
+                }
+            }
+
+            // 获取分类
+            const selectedCate = category.value;
+
+            // 格式化时间
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // 构造打卡数据（添加唯一ID）
+            const checkinData = {
+                id: Date.now(), // 用时间戳做唯一ID
+                category: selectedCate,
+                mood: selectedMood,
+                content: content,
+                time: timeStr
+            };
+
+            // 保存数据
+            saveCheckinData(checkinData);
+            // 渲染列表
+            renderCheckinList();
+            // 清空输入框
+            checkinContent.value = '';
+            wordCount.textContent = '0/500';
+        });
+
+        // 保存打卡数据到localStorage
+        function saveCheckinData(data) {
+            let checkinListData = JSON.parse(localStorage.getItem('checkinList')) || [];
+            checkinListData.unshift(data); // 最新的在最前面
+            localStorage.setItem('checkinList', JSON.stringify(checkinListData));
+        }
+
+        // 渲染打卡列表
+        function renderCheckinList() {
+            let checkinListData = JSON.parse(localStorage.getItem('checkinList')) || [];
+            if (checkinListData.length === 0) {
+                checkinList.innerHTML = `
+                    <div class="checkin-empty">
+                        <i>📝</i>
+                        还没有日记内容，快来记录你的第一次日记吧～
+                    </div>
+                `;
+                return;
+            }
+
+            // 生成卡片
+            let html = '';
+            checkinListData.forEach(item => {
+                html += `
+                    <div class="checkin-card" data-id="${item.id}">
+                        <div class="card-close" onclick="deleteCheckin(${item.id})">×</div>
+                        <div class="card-category">${item.category}</div>
+                        <div class="card-mood">${item.mood}</div>
+                        <div class="card-content">${item.content}</div>
+                        <div class="card-time">${item.time}</div>
+                    </div>
+                `;
+            });
+            checkinList.innerHTML = html;
+        }
+
+        // 删除打卡记录
+        function deleteCheckin(id) {
+            if (confirm('确定要删除这条日记记录吗？')) {
+                let checkinListData = JSON.parse(localStorage.getItem('checkinList')) || [];
+                // 过滤掉要删除的ID
+                checkinListData = checkinListData.filter(item => item.id !== id);
+                localStorage.setItem('checkinList', JSON.stringify(checkinListData));
+                // 重新渲染
+                renderCheckinList();
+            }
+        }
+    </script>
+<script>
+// 意见反馈相关脚本
+function showFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'flex';
+}
+
+function hideFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+function sendFeedback() {
+  const feedbackInput = document.querySelector('textarea[placeholder="有建议/吐槽/表扬？尽管砸过来！（500字上限哦）"]');
+  const feedbackContent = feedbackInput.value.trim();
+  if (!feedbackContent) {
+    alert('空空的反馈可不行～快写下你的想法吧！');
+    return;
+  }
+  window.location.href = `mailto:3676042504@qq.com?subject=超有用的用户反馈&body=${encodeURIComponent(feedbackContent)}`;
+  alert('请使用 QQ邮箱 发送');
+  feedbackInput.value = '';
+  feedbackInput.nextElementSibling.textContent = '已写0/500字';
+  hideFeedbackModal();
+}
+
+// 视频播放相关脚本
+(function (window, document) {
+  // 防止被嵌入iframe
+  if (top != self) window.top.location.replace(self.location.href);
+  
+  const get = id => document.getElementById(id);
+  const bind = (el, evt, cb) => el.addEventListener(evt, cb);
+  let auto = true;
+  const player = get('player');
+
+  // 切换视频源并播放
+  const randomm = () => {
+    player.src = 'http://www.wudada.online/Api/NewSp';
+    player.play().catch(err => console.log('视频播放失败:', err));
+  };
+
+  // 绑定按钮事件
+  bind(get('next'), 'click', randomm);
+  bind(player, 'error', () => {
+    console.log('视频加载错误，尝试切换源');
+    randomm();
+  });
+  bind(get('switch'), 'click', function() {
+    auto = !auto;
+    this.innerText = '自动: ' + (auto ? '开' : '关');
+  });
+  bind(player, 'ended', () => {
+    if (auto) randomm();
+  });
+})(window, document);
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) e.preventDefault();
+});
+</script>
+<!-- 每日打卡模块（含截图CDN，直接复制嵌入即可） -->
+<script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<div id="checkInModule" style="width: 100%; max-width: 600px; margin: 20px auto; padding: 20px; font-family: 'Microsoft YaHei', sans-serif; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative;">
+    <!-- 打卡核心区域 -->
+    <div id="checkInMain" style="margin-bottom: 30px;">
+        <h3 style="margin: 0 0 15px; color: #333; font-size: 18px; font-weight: 600;">每日打卡 · 连续30天领福利</h3>
+        <!-- 打卡按钮 -->
+        <button id="checkInBtn" style="width: 100%; padding: 12px; background: #409eff; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s; margin-bottom: 20px;">
+            立即打卡
+        </button>
+        <!-- 进度条容器 -->
+        <div style="width: 100%; height: 10px; background: #f5f5f5; border-radius: 5px; overflow: hidden; margin-bottom: 10px;">
+            <div id="progressBar" style="height: 100%; width: 0%; background: #67c23a; border-radius: 5px; transition: width 0.5s ease;"></div>
+        </div>
+        <!-- 进度文字 -->
+        <p id="progressText" style="margin: 0; color: #666; font-size: 14px; text-align: center;">
+            连续打卡：0天 / 目标30天（0%）
+        </p>
+        <!-- 鼓励语 -->
+        <p id="encourageText" style="margin: 15px 0 0; color: #409eff; font-size: 15px; text-align: center; font-weight: 500;">
+            今日打卡，开启你的连续挑战吧！
+        </p>
+    </div>
+
+    <!-- 福利记录区域（防篡改+截图下载） -->
+    <div id="rewardSection" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <h4 style="margin: 0 0 15px; color: #333; font-size: 16px; font-weight: 600;">福利记录(获得后请联系作者进行兑换)</h4>
+        <!-- 福利记录容器（核心截图区域，包含水印） -->
+        <div id="rewardRecord" style="position: relative; padding: 20px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; min-height: 120px; overflow: hidden; margin-bottom: 15px;">
+            <!-- 防篡改水印（自动生成，倾斜覆盖整个区域） -->
+            <div id="watermark" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color: rgba(0,0,0,0.1); font-size: 30px; font-weight: bold; text-align: center; line-height: 120px; transform: rotate(-15deg); pointer-events: none; z-index: 1;"></div>
+            <!-- 福利记录内容 -->
+            <div id="rewardContent" style="position: relative; z-index: 2; color: #333; font-size: 14px; line-height: 1.8;">
+                暂无福利记录，连续打卡30天即可解锁！
+            </div>
+        </div>
+        <!-- 截图下载按钮 -->
+        <button id="downloadScreenshot" style="padding: 8px 16px; background: #67c23a; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.3s; display: block; margin: 0 auto;">
+            📸 截图下载记录
+        </button>
+    </div>
+</div>
+
+<style>
+    /* 打卡成功动画 */
+    @keyframes checkInSuccess {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    .check-in-success {
+        animation: checkInSuccess 0.5s ease;
+    }
+    /* 按钮hover效果 */
+    #checkInBtn:hover { background: #337ecc !important; }
+    #downloadScreenshot:hover { background: #5eba2f !important; }
+    /* 福利记录空状态样式 */
+    .reward-empty { color: #999 !important; }
+</style>
+
+<script>
+    // ========== 配置项（可自定义修改，按需调整） ==========
+    const CONFIG = {
+        targetDays: 30, // 目标连续打卡天数
+        rewardName: "免费一次5分钟短信💥服务", // 解锁的福利名称
+        rewardDesc: "连续30天打卡专属福利，有效期42小时", // 福利描述
+        // 分阶段鼓励语（按连续天数匹配，可自行添加/修改）
+        encourageWords: [
+            { min: 0, max: 5, text: "今日打卡，开启你的连续挑战吧！" },
+            { min: 6, max: 15, text: "不错哦，已经坚持一周啦，继续加油！" },
+            { min: 16, max: 29, text: "太厉害了，离目标越来越近，千万别放弃！" },
+            { min: 30, max: 999, text: "恭喜你达成30天连续打卡！福利已永久解锁～" }
+        ]
+    };
+
+    // ========== 全局变量 ==========
+    let streakDays = 0; // 连续打卡天数
+    let lastCheckInDate = ""; // 最后打卡日期（格式：YYYY-MM-DD）
+    let rewards = []; // 福利记录列表
+    const today = new Date().toISOString().split('T')[0]; // 今日日期（YYYY-MM-DD）
+
+    // ========== DOM元素获取 ==========
+    const checkInBtn = document.getElementById("checkInBtn");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const encourageText = document.getElementById("encourageText");
+    const rewardContent = document.getElementById("rewardContent");
+    const watermark = document.getElementById("watermark");
+    const rewardRecord = document.getElementById("rewardRecord");
+    const downloadScreenshot = document.getElementById("downloadScreenshot");
+
+    // ========== 初始化 ==========
+    init();
+    function init() {
+        // 从本地存储加载数据
+        loadData();
+        // 检查是否当天已打卡，更新按钮状态
+        updateBtnStatus();
+        // 更新进度条和文字
+        updateProgress();
+        // 更新鼓励语
+        updateEncourageText();
+        // 更新福利记录
+        updateRewardRecord();
+        // 更新防篡改水印
+        updateWatermark();
+        // 绑定事件
+        bindEvents();
+    }
+
+    // ========== 数据持久化（localStorage） ==========
+    function loadData() {
+        const savedData = localStorage.getItem("checkInData");
+        if (savedData) {
+            const { streak, lastDate, rewardList } = JSON.parse(savedData);
+            streakDays = streak || 0;
+            lastCheckInDate = lastDate || "";
+            rewards = rewardList || [];
+        }
+    }
+    function saveData() {
+        const data = {
+            streak: streakDays,
+            lastDate: lastCheckInDate,
+            rewardList: rewards
+        };
+        localStorage.setItem("checkInData", JSON.stringify(data));
+    }
+
+    // ========== 核心功能：打卡 ==========
+    function checkIn() {
+        // 检查是否当天已打卡
+        if (lastCheckInDate === today) {
+            alert("今日已打卡，明天再来吧～");
+            return;
+        }
+
+        // 判断是否中断：最后打卡日期不是昨天，则重置连续天数
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        if (lastCheckInDate !== "" && lastCheckInDate !== yesterdayStr) {
+            streakDays = 0;
+        }
+
+        // 增加连续天数
+        streakDays++;
+        // 更新最后打卡日期
+        lastCheckInDate = today;
+        // 保存数据
+        saveData();
+
+        // 检查是否达成30天目标，解锁福利
+        if (streakDays === CONFIG.targetDays) {
+            addReward();
+            alert(`恭喜！连续打卡${CONFIG.targetDays}天，已解锁【${CONFIG.rewardName}】！`);
+        }
+
+        // 更新页面状态
+        updateBtnStatus();
+        updateProgress();
+        updateEncourageText();
+        updateRewardRecord();
+        updateWatermark();
+
+        // 打卡成功动画
+        checkInBtn.classList.add("check-in-success");
+        setTimeout(() => {
+            checkInBtn.classList.remove("check-in-success");
+        }, 500);
+    }
+
+    // ========== 福利记录：生成防篡改记录 ==========
+    function addReward() {
+        const now = new Date();
+        // 生成防篡改信息：时间戳（精确到秒）+ 校验码（简单哈希）+ 唯一ID
+        const timestamp = now.toLocaleString(); // 生成时间（本地时间，精确到秒）
+        const checkCode = Math.abs((timestamp + streakDays).split('').reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0)).toString(16).slice(0, 8); // 简易校验码
+        // 新增福利记录
+        rewards.unshift({
+            id: Date.now(), // 唯一ID（时间戳）
+            timestamp, // 生成时间
+            streakDays, // 解锁时的连续天数
+            rewardName: CONFIG.rewardName, // 福利名称
+            rewardDesc: CONFIG.rewardDesc, // 福利描述
+            checkCode // 防篡改校验码
+        });
+        saveData();
+    }
+
+    // ========== 页面更新：按钮状态 ==========
+    function updateBtnStatus() {
+        if (lastCheckInDate === today) {
+            checkInBtn.textContent = "今日已打卡 ✅";
+            checkInBtn.disabled = true;
+            checkInBtn.style.background = "#999";
+            checkInBtn.style.cursor = "not-allowed";
+        } else {
+            checkInBtn.textContent = "立即打卡";
+            checkInBtn.disabled = false;
+            checkInBtn.style.background = "#409eff";
+            checkInBtn.style.cursor = "pointer";
+        }
+    }
+
+    // ========== 页面更新：进度条 + 进度文字 ==========
+    function updateProgress() {
+        const progress = Math.min((streakDays / CONFIG.targetDays) * 100, 100);
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `连续打卡：${streakDays}天 / 目标${CONFIG.targetDays}天（${Math.round(progress)}%）`;
+    }
+
+    // ========== 页面更新：动态鼓励语 ==========
+    function updateEncourageText() {
+        const word = CONFIG.encourageWords.find(item => streakDays >= item.min && streakDays <= item.max);
+        encourageText.textContent = word ? word.text : CONFIG.encourageWords[0].text;
+    }
+
+    // ========== 页面更新：福利记录 ==========
+    function updateRewardRecord() {
+        if (rewards.length === 0) {
+            rewardContent.innerHTML = '<p class="reward-empty">暂无福利记录，连续打卡30天即可解锁！</p>';
+            return;
+        }
+
+        // 生成福利记录HTML（包含所有防篡改信息）
+        let rewardHtml = "";
+        rewards.forEach((item, index) => {
+            rewardHtml += `
+                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; ${index === rewards.length - 1 ? 'border-bottom: none; margin-bottom: 0; padding-bottom: 0;' : ''}">
+                    <p><strong>福利名称：</strong>${item.rewardName}</p>
+                    <p><strong>福利描述：</strong>${item.rewardDesc}</p>
+                    <p><strong>解锁天数：</strong>连续打卡${item.streakDays}天</p>
+                    <p><strong>生成时间：</strong>${item.timestamp}</p>
+                    <p><strong>唯一校验码：</strong><span style="color: #e6a23c; font-weight: bold;">${item.checkCode}</span></p>
+                    <p><strong>记录ID：</strong>${item.id}</p>
+                </div>
+            `;
+        });
+
+        rewardContent.innerHTML = rewardHtml;
+    }
+
+    // ========== 页面更新：防篡改水印 ==========
+    function updateWatermark() {
+        // 水印内容：包含今日日期+总打卡天数，防止批图
+        const watermarkText = `打卡 · ${today} · 连续${streakDays}天`;
+        watermark.textContent = watermarkText;
+    }
+
+    // ========== 核心功能：截图下载福利记录 ==========
+    function downloadRecordScreenshot() {
+        // 对福利记录区域进行截图
+        html2canvas(rewardRecord, {
+            scale: 2, // 截图分辨率（2倍高清）
+            useCORS: true, // 解决跨域图片问题
+            logging: false // 关闭日志
+        }).then(canvas => {
+            // 转换为图片并下载
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `打卡福利记录_${today}.png`;
+            link.click();
+        }).catch(err => {
+            alert("截图失败，请重试！");
+            console.error("截图错误：", err);
+        });
+    }
+
+    // ========== 事件绑定 ==========
+    function bindEvents() {
+        // 打卡按钮点击事件
+        checkInBtn.addEventListener("click", checkIn);
+        // 截图下载按钮点击事件
+        downloadScreenshot.addEventListener("click", downloadRecordScreenshot);
+    }
+</script>
+</script>
+    <!-- 生成器弹窗 -->
+    <div id="generatorModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-effect rounded-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white dark:text-gray-100">锁机生成器.注:要有mt管理器</h2>
+                <button id="closeGeneratorModal" class="text-white/80 hover:text-white text-xl">×</button>
+            </div>
+            <!-- 生成器图片 -->
+            <div class="mb-6 rounded-xl overflow-hidden border-2 border-white/50 dark:border-black/50">
+                <img src="sj.jpg" alt="生成器图片" class="w-full h-auto object-cover" onerror="this.src='https://picsum.photos/id/237/600/400'">
+            </div>
+            <!-- 下载按钮 -->
+            <a href="https://wwel.lanzoum.com/iPaKf3ah1f9g" target="_blank" class="glass-effect rounded-xl btn-hover gradient-border uniform-btn text-white dark:text-gray-100 w-full flex items-center justify-center">
+                下载文件
+            </a>
+        </div>
+    </style>
+<html lang="zh-CN">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面标题</title>
+  <!-- 这里放你的 CSS 样式、外部资源等 -->
+  <style>
+    /* 必须有头像相关基础样式（确保 DOM 元素存在且可点击） */
+    .avatar-gradient {
+      position: relative;
+      width: 120px; /* 头像容器宽度，可自定义 */
+      height: 120px; /* 头像容器高度，可自定义 */
+      margin: 20px;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    .avatar-gradient img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    </script> 
+  </style>
+
+  <!-- 1. 先有头像 DOM 元素（代码依赖这两个元素，必须放在脚本之前） -->
+  <div class="avatar-gradient">
+    <img src="你的头像图片路径.jpg" alt="头像"> <!-- 替换为实际头像路径 -->
+  </div>
+
+  <!-- 2. 在这里插入你的特效代码（</body> 闭合前） -->
+  <script>
+    // 头像互动效果：旋转+脱离式弹窗+超广域下雪（完美适配手机）
+    const avatar = document.querySelector('.avatar-gradient img');
+    const avatarContainer = document.querySelector('.avatar-gradient');
+    let isRotating = false;
+
+    // 优化后弹出文案数组
+    const avatarTexts = [
+      "🌟 北中认准FIVE，不迷路～",
+      "✨ 純桉的小窝，欢迎光临！",
+      "🚀 版本2.4，体验升级中！",
+      "💖 感谢支持，好运连连～",
+      "🎈 点击解锁小惊喜呀！",
+      "🌈 愿你前程似锦，未来可期！",
+      "🔥 纯桉在此，为你打call！",
+      "💫 每一次点击，都是缘分呀～",
+      "📌 锁定FIVE，福利不缺席！",
+      "🌸 平安喜乐，万事顺意！"
+    ];
+
+    // 点击头像触发组合效果
+    avatarContainer.addEventListener('click', () => {
+      if (isRotating) return;
+      isRotating = true;
+
+      // 1. 头像旋转动画（保持丝滑）
+      avatar.style.transition = 'transform 1s ease-in-out';
+      avatar.style.transform = 'rotate(360deg)';
+
+      // 2. 脱离头像的居中弹窗（手机端醒目不遮挡）
+      const randomText = avatarTexts[Math.floor(Math.random() * avatarTexts.length)];
+      const textPopup = document.createElement('div');
+      textPopup.style.cssText = `
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.95), rgba(168, 85, 247, 0.95));
+        color: white;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        z-index: 9999;
+        white-space: nowrap;
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.6);
+        backdrop-filter: blur(2px);
+      `;
+      textPopup.textContent = randomText;
+      document.body.appendChild(textPopup);
+
+      // 弹窗显示动画（上浮+淡入）
+      setTimeout(() => {
+        textPopup.style.opacity = '1';
+        textPopup.style.transform = 'translateX(-50%) translateY(-10px)';
+      }, 300);
+
+      // 3. 超广域全屏下雪（覆盖整个视口+溢出区域，无死角）
+      createSuperWideSnow();
+
+      // 4. 重置状态（弹窗自动消失）
+      setTimeout(() => {
+        avatar.style.transform = 'rotate(0deg)';
+        textPopup.style.opacity = '0';
+        textPopup.style.transform = 'translateX(-50%) translateY(-20px)';
+        setTimeout(() => {
+          document.body.removeChild(textPopup);
+          isRotating = false;
+        }, 400);
+      }, 2000);
+    });
+  // 移动端触摸反馈优化
+    avatarContainer.style.cursor = 'pointer';
+    avatarContainer.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+    avatarContainer.addEventListener('touchstart', () => {
+      avatarContainer.style.transform = 'scale(0.92)';
+      avatarContainer.style.boxShadow = '0 0 20px rgba(108, 99, 255, 0.6)';
+    });
+    avatarContainer.addEventListener('touchend', () => {
+      avatarContainer.style.transform = 'scale(1)';
+      avatarContainer.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(168, 85, 247, 0.3)';
+    });
+
+    // 超广域下雪特效（扩大范围+手机适配拉满）
+    function createSuperWideSnow() {
+      // 移除旧容器，避免叠加
+      let snowContainer = document.getElementById('snow-container');
+      if (snowContainer) document.body.removeChild(snowContainer);
+      
+      // 超广域容器（超出屏幕20%，左右上下均覆盖，无边缘空白）
+      snowContainer = document.createElement('div');
+      snowContainer.id = 'snow-container';
+      snowContainer.style.cssText = `
+        position: fixed;
+        top: -20vh;
+        left: -20vw;
+        width: 140vw; /* 超出屏幕40% */
+        height: 140vh; /* 超出屏幕40% */
+        pointer-events: none;
+        z-index: 9998;
+        overflow: hidden;
+        touch-action: none;
+        transform: translateZ(0); /* 硬件加速 */
+      `;
+      document.body.appendChild(snowContainer);
+
+      // 雪花数量（手机端60片，平板/电脑80片，密集不卡顿）
+      const snowCount = window.innerWidth < 768 ? 60 : 80;
+      for (let i = 0; i < snowCount; i++) {
+        const snowflake = document.createElement('div');
+        
+        // 随机属性（更自然的飘落效果）
+        const size = Math.random() * 8 + 3; // 3-11px
+        const left = Math.random() * 140; // 0-140vw（超广域分布）
+        const duration = Math.random() * 8 + 5; // 5-13秒（慢节奏，覆盖广）
+        const delay = Math.random() * 3; // 0-3秒延迟
+        const opacity = Math.random() * 0.6 + 0.2; // 20%-80%透明度
+        const sway = Math.random() * 30 - 15; // 左右摇摆幅度加大（-15到15px）
+        const wind = Math.random() * 8 - 4; // 风力偏移增强（-4到4px/秒）
+
+        // 雪花样式升级（三种形态+立体渐变）
+        const shapeType = Math.floor(Math.random() * 3); // 0:圆形 1:六边形 2:星形
+        let shapeStyle = '';
+        const lightColor = document.documentElement.classList.contains('dark') ? '#f5f5f5' : 'white';
+        const darkColor = document.documentElement.classList.contains('dark') ? '#e0e0e0' : '#f2f2f2';
+
+        switch(shapeType) {
+          case 0:
+            shapeStyle = `border-radius: 50%; background: linear-gradient(135deg, ${lightColor}, ${darkColor});`;
+            break;
+          case 1:
+            shapeStyle = `clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: linear-gradient(135deg, ${lightColor}, ${darkColor});`;
+            break;
+          case 2:
+            shapeStyle = `clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); background: linear-gradient(135deg, ${lightColor}, ${darkColor});`;
+            break;
+        }
+
+        // 最终样式（抗锯齿+硬件加速）
+        snowflake.style.cssText = `
+          position: absolute;
+          top: -20px;
+          left: ${left}vw;
+          width: ${size}px;
+          height: ${size}px;
+          ${shapeStyle}
+          opacity: ${opacity};
+          filter: blur(${size < 5 ? 0.5 : 1.2}px) drop-shadow(0 0 3px rgba(255,255,255,0.6));
+          animation: snowfall-${i} ${duration}s linear forwards ${delay}s;
+          will-change: transform, opacity;
+        `;
+
+        snowContainer.appendChild(snowflake);
+
+        // 超广域下落动画（大范围摇摆+风力漂移，覆盖全屏幕）
+        const keyframes = `
+          @keyframes snowfall-${i} {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            20% { transform: translateY(30vh) translateX(${sway * 0.3}px) rotate(20deg); }
+            40% { transform: translateY(60vh) translateX(${sway * 0.7}px) rotate(0deg); }
+            60% { transform: translateY(90vh) translateX(${sway}px) rotate(-20deg); }
+            80% { transform: translateY(120vh) translateX(${sway * 0.7}px) rotate(0deg); }
+            100% { transform: translateY(150vh) translateX(${sway * 0.3 + wind * duration}px) rotate(20deg); }
+          }
+        `;
+        const style = document.createElement('style');
+        style.innerHTML = keyframes;
+        document.head.appendChild(style);
+
+        // 动画结束后清理
+        setTimeout(() => {
+          snowflake.style.opacity = '0';
+          setTimeout(() => {
+            if (snowflake.parentElement) snowContainer.removeChild(snowflake);
+            document.head.removeChild(style);
+          }, 500);
+        }, (duration + delay) * 1000);
+      }
+
+      // 所有雪花消失后移除容器
+      setTimeout(() => {
+        snowContainer.style.opacity = '0';
+        setTimeout(() => {
+          if (snowContainer.parentElement) document.body.removeChild(snowContainer);
+        }, 800);
+      }, 15000);
+    }
+  </script>
+</script>
+<style>
+    .scroll-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 50px;
+        line-height: 50px;
+        overflow: hidden;
+        z-index: 9999;
+        background: rgba(0,0,0,0.8);
+        /* 防止容器被其他元素挤压 */
+        box-sizing: border-box;
+    }
+    .scroll-text {
+        /* 必须设为行内块，才能准确计算文字宽度 */
+        display: inline-block;
+        white-space: nowrap;
+        font-size: 22px;
+        font-weight: 500;
+        background: linear-gradient(90deg, #00ff9d, #009dff, #9d00ff, #ff009d);
+        background-size: 400% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        /* 核心：动画终点设为 文字宽度的负数，确保完全滚出 */
+        animation: 
+            gradientMove 8s linear infinite,
+            textScroll 40s linear infinite; /* 时长越长，滚动越慢 */
+        will-change: transform;
+        transform: translateZ(0);
+    }
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 400% 50%; }
+    }
+    /* 关键修复：起点在容器右侧外，终点在文字完全左侧外 */
+    @keyframes textScroll {
+        0% { transform: translateX(calc(100vw)); }
+        100% { transform: translateX(calc(-100% - 100vw)); }
+    }
+</style>
+
+<div class="scroll-container">
+    <div class="scroll-text">人生本过客,何必千千结,本站提供实用资源  文件的提取密码都是:0705 3月7日日已更新内容 有意见请前往“意见反馈” 祝大家新年快乐！！</div>
+</div>
+      </script>
+</script>
+<script src="https://cdn.staticfile.net/jquery/3.5.1/jquery.min.js"></script>
+</script>
+<script id="xplayer" src="https://y.cenguigui.cn/Static/player/player.js" key="6961a6db9ab87" api="https://y.cenguigui.cn/" m = "1"></script>
+</body>
+</html>
